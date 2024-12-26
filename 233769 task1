@@ -1,0 +1,73 @@
+<Window x:Class="WpfApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Order Information" Height="300" Width="400">
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+    <StackPanel Margin="20">
+        <ComboBox ItemsSource="{Binding Addresses}" 
+         SelectedItem="{Binding SelectedShippingAddress}" 
+                  DisplayMemberPath="Street" 
+                  Width="300" 
+                  Margin="0,0,0,10"/>
+        <TextBlock Text="{Binding SelectedShippingAddress.City}" />
+        <TextBlock Text="{Binding SelectedShippingAddress.State}" />
+        <TextBlock Text="{Binding SelectedShippingAddress.ZipCode}" />
+    </StackPanel>
+</Window>
+
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
+
+public class MainViewModel : INotifyPropertyChanged
+{
+    private Address _selectedShippingAddress;
+    public ObservableCollection<Address> Addresses { get; set; }
+
+    public Address SelectedShippingAddress
+    {
+        get => _selectedShippingAddress;
+        set
+        {
+            if (_selectedShippingAddress != value)
+            {
+                _selectedShippingAddress = value;
+                OnPropertyChanged(nameof(SelectedShippingAddress));
+                OnShippingAddressChanged();
+            }
+        }
+    }
+
+    public MainViewModel()
+    {
+        Addresses = new ObservableCollection<Address>
+        {
+            new Address { Street = "123 Main St", City = "Anytown", State = "CA", ZipCode = "12345" },
+            new Address { Street = "456 Elm St", City = "Othertown", State = "NY", ZipCode = "67890" }
+        };
+    }
+
+    private void OnShippingAddressChanged()
+    {
+        MessageBoxResult result = MessageBox.Show("Do you want to update the existing address or add a new one?", "Address Change", MessageBoxButton.YesNoCancel);
+        if (result == MessageBoxResult.Yes)
+        {
+            // Logic to update the existing address
+        }
+        else if (result == MessageBoxResult.No)
+        {
+            // Logic to add a new address
+            // For simplicity, we will just add a new address with a placeholder
+            Addresses.Add(new Address { Street = "New Address", City = "New City", State = "New State", ZipCode = "00000" });
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    protected void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+               
